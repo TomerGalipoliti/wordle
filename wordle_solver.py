@@ -1,22 +1,15 @@
 import wordle_interface
+import english_dict
 import random
 
-DICT_FILE = 'words_alpha.txt'
-WORD_LEN = 5
+WORD_LEN = wordle_interface.WORD_LEN
 TRIES = 6
 
 GREY = 0
 YELLOW = 1
 GREEN = 2
 
-
-def get_all_5_letters_words():
-    with open(DICT_FILE, 'r') as f:
-        lines = f.readlines()
-    lines = [line[:-1] for line in lines] # remove newline char
-    return [word for word in lines if len(word) == WORD_LEN]
-
-all_words = get_all_5_letters_words()
+all_words = english_dict.get_all_n_letters_words(WORD_LEN)
 
 prev_guesses_example = [{'word': 'argue', 'res': [YELLOW, GREY, GREY, GREY, GREY]},
                         {'word': 'blast', 'res': [GREEN, GREY, YELLOW, YELLOW, GREY]},
@@ -50,18 +43,38 @@ def get_possible_words(prev_guesses, curr_possible_words):
 def choose_word_from_possible(possible_words):
     return random.choice(possible_words)
 
-if __name__ == '__main__':
+
+def get_next_guess_naive(prev_guesses):
+    curr_posib = get_possible_words(prev_guesses, all_words)
+    return choose_word_from_possible(curr_posib)
+
+def solve(get_next_guess):
     prev_guesses = []
-    curr_posib = all_words
     for i in range(TRIES):
-        word_guess = choose_word_from_possible(curr_posib)
+        word_guess = get_next_guess(prev_guesses)
         guess = wordle_interface.try_word(word_guess)
         if guess['res'] == [GREEN] * WORD_LEN:
             print(f'found word: {word_guess} after {i + 1} tries')
-            exit()      
-        print(f'guess:\n{guess}')
+            return i+1
+        print(f'guess: {guess}')
         prev_guesses.append(guess)
-        curr_posib = get_possible_words(prev_guesses, curr_posib)
+    print(f'failed within {TRIES} tries')
+    return -1
+
+def main():
+    failures = 0
+    total_tries = 0
+    iterations = 100
+    for i in range(iterations):
+        n = solve(get_next_guess_naive)
+        if n == -1:
+            failures += 1
+        else:
+            total_tries += n
+        wordle_interface.set_new_word()
+
+    print(f'failues: {failures}, average tries on success: {total_tries / (iterations - failures)}')
     
-    print(f'left with words: {curr_posib}')
-    
+
+if __name__ == '__main__':
+    main()
