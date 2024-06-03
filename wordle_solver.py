@@ -5,16 +5,16 @@ import random
 WORD_LEN = wordle_interface.WORD_LEN
 TRIES = 6
 
-GREY = 0
+GRAY = 0
 YELLOW = 1
 GREEN = 2
 
 all_words = english_dict.get_all_n_letters_words(WORD_LEN)
 
-prev_guesses_example = [{'word': 'argue', 'res': [YELLOW, GREY, GREY, GREY, GREY]},
-                        {'word': 'blast', 'res': [GREEN, GREY, YELLOW, YELLOW, GREY]},
-                        {'word':'backs', 'res': [GREEN,GREEN,GREY,GREY,YELLOW]},
-                        {'word':'basan', 'res': [GREEN,GREEN,GREEN,GREY,GREEN]}]
+prev_guesses_example = [{'word': 'argue', 'res': [YELLOW, GRAY, GRAY, GRAY, GRAY]},
+                        {'word': 'blast', 'res': [GREEN, GRAY, YELLOW, YELLOW, GRAY]},
+                        {'word':'backs', 'res': [GREEN,GREEN,GRAY,GRAY,YELLOW]},
+                        {'word':'basan', 'res': [GREEN,GREEN,GREEN,GRAY,GREEN]}]
 
 def is_word_possible(word, prev_guesses, debug=False):
     for guess in prev_guesses:
@@ -25,7 +25,7 @@ def is_word_possible(word, prev_guesses, debug=False):
             if guess['res'][i] == YELLOW:
                 if (guess['word'][i] not in word) or (guess['word'][i] == word[i]):
                     return False        
-            if guess['res'][i] == GREY:
+            if guess['res'][i] == GRAY:
                 greens = [word[i] for i in range(len(word)) if guess['res'][i] == GREEN]
                 if (guess['word'][i] in word) and (guess['word'][i] not in greens):
                     return False 
@@ -64,7 +64,7 @@ def solve(get_next_guess):
 def main():
     failures = 0
     total_tries = 0
-    iterations = 100
+    iterations = 1000
     for i in range(iterations):
         n = solve(get_next_guess_naive)
         if n == -1:
