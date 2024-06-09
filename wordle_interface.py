@@ -1,7 +1,7 @@
 import english_dict
 import random
 
-WORD = 'derog'
+WORD = 'agush'
 WORD_LEN = 5
 assert len(WORD) == WORD_LEN
 
@@ -46,19 +46,20 @@ def try_word(word):
         print('word is not in dict')
         return None
     res = [GRAY] * WORD_LEN
-    non_greens = ''
+    yellow_lookup = ''
     for i in range(WORD_LEN):
         if word[i] == WORD[i]:
             res[i] = GREEN
             letters_history[word[i]] = GREEN
         else:
-            non_greens += WORD[i]
+            yellow_lookup += WORD[i]
 
     for i in range(WORD_LEN):
         if res[i] == GREEN:
             continue
-        if word[i] in non_greens:
+        if word[i] in yellow_lookup:
             res[i] = YELLOW
+            yellow_lookup = yellow_lookup.replace(word[i], '', 1)
             letters_history[word[i]] = YELLOW
 
     return {'word': word, 'res': res}
