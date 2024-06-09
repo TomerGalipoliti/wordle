@@ -16,20 +16,32 @@ prev_guesses_example = [{'word': 'argue', 'res': [YELLOW, GRAY, GRAY, GRAY, GRAY
                         {'word':'backs', 'res': [GREEN,GREEN,GRAY,GRAY,YELLOW]},
                         {'word':'basan', 'res': [GREEN,GREEN,GREEN,GRAY,GREEN]}]
 
+def print_debug(debug, e):
+    if debug:
+        print(e)
+
 def is_word_possible(word, prev_guesses, debug=False):
     for guess in prev_guesses:
         for i in range(WORD_LEN):
             if guess['res'][i] == GREEN:
                 if guess['word'][i] != word[i]:
+                    print_debug(debug, 'cond 1')
                     return False
             if guess['res'][i] == YELLOW:
                 if (guess['word'][i] not in word) or (guess['word'][i] == word[i]):
+                    print_debug(debug, 'cond 2')
                     return False        
             if guess['res'][i] == GRAY:
-                greens = [word[i] for i in range(len(word)) if guess['res'][i] == GREEN]
-                if (guess['word'][i] in word) and (guess['word'][i] not in greens):
+                greens = [guess['word'][i] for i in range(len(word)) if guess['res'][i] == GREEN]
+                yellows = [guess['word'][i] for i in range(len(word)) if guess['res'][i] == YELLOW]
+                if (guess['word'][i] in word) and (guess['word'][i] not in greens) and (guess['word'][i] not in yellows):
+                    print_debug(debug, 'cond 3')
+                    print_debug(debug, guess)
+                    print_debug(debug, greens)
+                    print_debug(debug, yellows)
                     return False 
                 if guess['word'][i] == word[i]:
+                    print_debug(debug, 'cond 4')
                     return False
     return True
 
@@ -53,10 +65,10 @@ def solve(get_next_guess):
     for i in range(TRIES):
         word_guess = get_next_guess(prev_guesses)
         guess = wordle_interface.try_word(word_guess)
+        wordle_interface.print_guess(guess)
         if guess['res'] == [GREEN] * WORD_LEN:
             print(f'found word: {word_guess} after {i + 1} tries')
             return i+1
-        print(f'guess: {guess}')
         prev_guesses.append(guess)
     print(f'failed within {TRIES} tries')
     return -1
@@ -64,7 +76,7 @@ def solve(get_next_guess):
 def main():
     failures = 0
     total_tries = 0
-    iterations = 1000
+    iterations = 100
     for i in range(iterations):
         n = solve(get_next_guess_naive)
         if n == -1:

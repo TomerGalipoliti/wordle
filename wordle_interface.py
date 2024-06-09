@@ -1,7 +1,7 @@
 import english_dict
 import random
 
-WORD = 'basin'
+WORD = 'derog'
 WORD_LEN = 5
 assert len(WORD) == WORD_LEN
 
@@ -34,34 +34,51 @@ def print_keyboard():
 def set_new_word():
     global WORD
     WORD = random.choice(all_words)
-    #print(f'new word been set: {WORD}')
+    print(f'new word been set: {WORD}')
+    for letter in letters_history:
+        letters_history[letter] = GRAY
 
 def try_word(word):
-    word_chars = list(word)
     if len(word) != len(WORD):
-        raise Exception('bad word length')
+        print('bad word length')
+        return None
     if word not in all_words:
-        raise Exception('word is not in dict')
-    res = [None] * WORD_LEN
+        print('word is not in dict')
+        return None
+    res = [GRAY] * WORD_LEN
+    non_greens = ''
     for i in range(WORD_LEN):
-        if word_chars[i] == WORD[i]:
+        if word[i] == WORD[i]:
             res[i] = GREEN
-            word_chars[i] = '!'
             letters_history[word[i]] = GREEN
+        else:
+            non_greens += WORD[i]
 
     for i in range(WORD_LEN):
-        if WORD[i] in word_chars:
+        if res[i] == GREEN:
+            continue
+        if word[i] in non_greens:
             res[i] = YELLOW
-            word_chars[i] = '!'
             letters_history[word[i]] = YELLOW
 
-    for i in range(WORD_LEN):
-        if word_chars[i] != '!':
-            res[i] = GRAY
-    
-    assert None not in res
+    return {'word': word, 'res': res}
 
-    guess = {'word': word, 'res': res}
-    print_guess(guess)
-    print_keyboard()
-    return guess
+
+def main():
+    retries = 6
+    while retries > 0:
+        print('enter guess:')
+        word = input()
+        guess = try_word(word)
+        if not guess:
+            continue
+        print_guess(guess)
+        print_keyboard()
+        if guess['res'] == ([GREEN] * WORD_LEN):
+            print('well done')
+            exit()
+        retries -= 1
+    print('no luck')
+
+if __name__ == '__main__':
+    main()
